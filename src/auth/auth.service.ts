@@ -1,14 +1,17 @@
+import { User } from './../common/schemas/user.schema';
 import { LoginUserDto } from './../users/dto/login-user.dto';
 import { CreateUserDto } from './../users/dto/create-user.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import { RefreshTokenReposity } from 'src/common/repository/refresh-token.repository';
 
 @Injectable()
 export class AuthService {
   constructor(
     private usersService: UsersService,
     private jwtService: JwtService,
+    private readonly refreshTokenRepository: RefreshTokenReposity,
   ) {}
 
   async validateUser(username: string) {
@@ -32,10 +35,77 @@ export class AuthService {
       ...token,
     };
   }
-  private async _generateToken({ username }) {
+  async refreshTokenRequest(refreshToken: string) {
+    const decodeToken = await this.validateRefreshToken(refreshToken);
+    if (!decodeToken) {
+      throw new HttpException(
+        `Invalid or expired refresh token`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const { user } = await this.usersService.findUserByRefreshToken(
+      refreshToken,
+    );
+    const newToken = await this._generateToken(user);
+    return {
+      username: user.username,
+      ...newToken,
+    };
+  }
+  async validateRefreshToken(refreshToken: string) {
+    try {
+      const refreshTokenExisted =
+        await this.refreshTokenRepository.findByCondition({
+          refreshToken,
+        });
+
+      if (!refreshTokenExisted) return null;
+
+      const decodedToken = await this.jwtService.verify(refreshToken, {
+        secret: `${process.env.JWT_SECRET_KEY_REFRESH}`,
+      });
+      console.log(decodedToken);
+      if (!decodedToken) return null;
+      if (refreshTokenExisted.expiryDate < new Date()) {
+        await refreshTokenExisted.remove();
+        return null;
+      }
+      return decodedToken;
+    } catch (error) {}
+  }
+  async createRefreshToken(user: User) {
+    const refreshToken = this.jwtService.sign(
+      {
+        username: user.username,
+      },
+      {
+        secret: `${process.env.JWT_SECRET_KEY_REFRESH}`,
+        expiresIn: `${process.env.EXPIRES_REFRESH_TOKEN}`,
+      },
+    );
+    // 7 means 7day
+    const expiryDate = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    const _refreshToken = await this.refreshTokenRepository.create({
+      refreshToken,
+      expiryDate,
+      user,
+    });
+    return _refreshToken.refreshToken;
+  }
+  private async _generateToken(user: User, refresh = false) {
+    const { username } = user;
     const accessToken = this.jwtService.sign({
       username,
     });
+    if (refresh) {
+      const refreshToken = await this.createRefreshToken(user);
+      return {
+        expiresIn: `${process.env.EXPIRES_TOKEN}`,
+        accessToken,
+        refreshToken,
+        expireInRefresh: `${process.env.EXPIRES_REFRESH_TOKEN}`,
+      };
+    }
     return {
       expiresIn: `${process.env.EXPIRES_TOKEN}`,
       accessToken,

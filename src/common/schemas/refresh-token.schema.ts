@@ -11,7 +11,7 @@ export class RefreshToken {
     required: true,
     unique: true,
   })
-  token: string;
+  refreshToken: string;
   @Prop({
     type: mongoose.Schema.Types.ObjectId,
     required: true,

@@ -1,3 +1,9 @@
+import {
+  RefreshToken,
+  RefreshTokenSchema,
+} from './../common/schemas/refresh-token.schema';
+import { MongooseModule } from '@nestjs/mongoose';
+import { RefreshTokenReposity } from './../common/repository/refresh-token.repository';
 import { Module } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { UsersModule } from '../users/users.module';
@@ -22,8 +28,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    MongooseModule.forFeature([
+      { name: RefreshToken.name, schema: RefreshTokenSchema },
+    ]),
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, JwtStrategy, RefreshTokenReposity],
 })
 export class AuthModule {}

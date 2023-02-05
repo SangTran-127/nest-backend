@@ -8,9 +8,13 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { UserReposity } from 'src/common/repository/user.repository';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
+import { RefreshTokenReposity } from 'src/common/repository/refresh-token.repository';
 @Injectable()
 export class UsersService {
-  constructor(private readonly userRepository: UserReposity) {}
+  constructor(
+    private readonly userRepository: UserReposity,
+    private readonly refreshTokenRepository: RefreshTokenReposity,
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
     const salt = await bcrypt.genSalt(10);
@@ -27,6 +31,13 @@ export class UsersService {
 
   async findAll() {
     return await this.userRepository.findAll();
+  }
+
+  async findUserByRefreshToken(refreshToken: string) {
+    const userByToken = await (
+      await this.refreshTokenRepository.findByCondition({ refreshToken })
+    ).populate('user', '-password');
+    return userByToken;
   }
 
   async findByLogin({ username, password }: LoginUserDto) {
