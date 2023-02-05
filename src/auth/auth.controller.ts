@@ -1,7 +1,8 @@
 import { LoginUserDto } from './../users/dto/login-user.dto';
 import { CreateUserDto } from './../users/dto/create-user.dto';
 import { AuthService } from './auth.service';
-import { Controller, Body, Post } from '@nestjs/common';
+import { Controller, Body, Post, UseGuards, Req } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -18,5 +19,13 @@ export class AuthController {
   @Post('refresh')
   async refresh(@Body('refresh_token') refreshToken: string) {
     return await this.authService.refreshTokenRequest(refreshToken);
+  }
+  @UseGuards(AuthGuard('jwt'))
+  @Post('logout')
+  async logout(@Req() req: any) {
+    await this.authService.logout(req.user);
+    return {
+      statusCode: 200,
+    };
   }
 }
