@@ -9,6 +9,7 @@ import { UserReposity } from 'src/common/repository/user.repository';
 import * as bcrypt from 'bcrypt';
 import { LoginUserDto } from './dto/login-user.dto';
 import { RefreshTokenReposity } from 'src/common/repository/refresh-token.repository';
+import { RefreshToken } from 'src/common/schemas/refresh-token.schema';
 @Injectable()
 export class UsersService {
   constructor(
@@ -67,7 +68,12 @@ export class UsersService {
   update(id: number, updateUserDto: UpdateUserDto) {
     return `This action updates a #${id} user`;
   }
-
+  // async addRefreshToken(username: string, refreshToken: RefreshToken) {
+  //   return await this.userRepository.findByConditionAndUpdate(
+  //     { username: { $eq: username } },
+  //     { $push: { refreshTokens: refreshToken } },
+  //   );
+  // }
   remove(id: number) {
     return `This action removes a #${id} user`;
   }

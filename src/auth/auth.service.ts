@@ -22,7 +22,12 @@ export class AuthService {
   async login(userDTO: LoginUserDto) {
     const user = (await this.usersService.findByLogin(userDTO)) as User;
     const token = await this._generateToken(user);
-    console.log(token);
+    // const { refreshToken } = token;
+    // const _refreshToken = await this.refreshTokenRepository.findByCondition({
+    //   refreshToken: { $eq: refreshToken },
+    // });
+    // console.log(user.username);
+    // await this.usersService.addRefreshToken(user.username, _refreshToken);
     return {
       username: user.username,
       ...token,
