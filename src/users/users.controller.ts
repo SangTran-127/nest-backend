@@ -26,14 +26,15 @@ export class UsersController {
   async findAll() {
     return await this.usersService.findAll();
   }
+
   @Get('token')
   async findByToken(@Body('token') token: string) {
     return await this.usersService.findUserByRefreshToken(token);
   }
+
   @UseGuards(AuthGuard('jwt'))
   @Get('profile')
   async findOne(@Body('username') username: string) {
-    console.log(username);
     return await this.usersService.findByUsername(username);
   }
 

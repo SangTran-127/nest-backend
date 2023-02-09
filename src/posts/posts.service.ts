@@ -16,6 +16,13 @@ export class PostsService {
     post.author.password = undefined;
     return await this.postRepository.create(post);
   }
+  async getAllPost() {
+    const allPosts = await this.postRepository.findAll();
+    return await this.postRepository.populate(allPosts, {
+      path: 'author',
+      select: '-password',
+    });
+  }
   async getPostById(id: string) {
     const comments = await this.commentRepository.getByCondition({ post: id });
     console.log(comments);

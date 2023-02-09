@@ -3,12 +3,7 @@ import { User } from 'src/common/schemas/user.schema';
 
 export class CreatePostDto {
   @IsNotEmpty()
-  title: string;
+  content: string;
   @IsNotEmpty()
-  description: string;
-  @IsNotEmpty()
-  author: User = {
-    username: '',
-    password: '',
-  };
+  author: User = {} as User;
 }

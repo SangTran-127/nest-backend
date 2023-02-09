@@ -29,7 +29,7 @@ export class AuthService {
     // console.log(user.username);
     // await this.usersService.addRefreshToken(user.username, _refreshToken);
     return {
-      username: user.username,
+      user,
       ...token,
     };
   }

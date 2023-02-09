@@ -8,7 +8,6 @@ import {
   Get,
   Param,
   Post,
-  Put,
   Req,
   UseGuards,
 } from '@nestjs/common';
@@ -20,12 +19,16 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 export class PostsController {
   constructor(private postService: PostsService) {}
 
+  @Get('all')
+  async getAllPost() {
+    return await this.postService.getAllPost();
+  }
+
   @UseGuards(AuthGuard('jwt'))
   @Post()
   async createPost(@Req() req: Request, @Body() postDto: CreatePostDto) {
     return await this.postService.createPost(req.user as User, postDto);
   }
-
   @UseGuards(AuthGuard('jwt'))
   @Get('own')
   async showOwnPosts(@Req() req: Request) {
@@ -35,10 +38,6 @@ export class PostsController {
   async getPostById(@Param('id') id: string) {
     return await this.postService.getPostById(id);
   }
-  // @Get(':id/comment')
-  // async getCommentByPostId(@Param('id') id: string) {
-  //   return await this.postService.getCommentByPostId(id);
-  // }
   @UseGuards(AuthGuard('jwt'))
   @Post('comments')
   async commentPost(
@@ -52,4 +51,11 @@ export class PostsController {
       createCommentDto,
     );
   }
+  // @UseGuards(AuthGuard('jwt'))
+  // @Get('user/all')
+  // async getPostUser(@Req() req: Request) {
+  //   const user = req.user as UserDocument;
+  //   await user.populate('posts');
+  //   return user.posts;
+  // }
 }

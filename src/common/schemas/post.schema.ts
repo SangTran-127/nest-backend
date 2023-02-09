@@ -1,5 +1,3 @@
-import { UserSchema } from 'src/common/schemas/user.schema';
-import { CommentSchema } from './comment.schema';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import mongoose, { Date, HydratedDocument } from 'mongoose';
 import { User } from './user.schema';
@@ -11,9 +9,7 @@ export class Post {
   @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true })
   author: User;
   @Prop({ required: true })
-  title: string;
-  @Prop({ required: true })
-  description: string;
+  content: string;
   @Prop({ default: Date.now, type: Date })
   createdDate: Date;
   @Prop({ default: 0 })

@@ -8,8 +8,5 @@ export class CreateCommentDto {
   @IsNotEmpty()
   description: string;
   @IsNotEmpty()
-  author: User = {
-    username: '',
-    password: '',
-  };
+  author: User = {} as User;
 }
